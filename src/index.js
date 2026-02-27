@@ -10,7 +10,7 @@ app.use(session({ secret: 'scale-15-secret', resave: false, saveUninitialized: f
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.get('/health', (req, res) => { res.json({ status: 'ok', host: req.host }); });
+app.get('/health', (req, res) => { res.json({ status: 'ok', host: req.hostname }); });
 
 // Auth routes
 app.post('/auth/login', passport.authenticate('local'), (req, res) => {
@@ -37,15 +37,15 @@ app.use('/api/files', require('./routes/files'));
 app.use('/api/settings', require('./routes/settings'));
 
 // Search wildcard — /api/search/* (breaks in Express 5)
-app.get('/api/search/*', (req, res) => {
+app.get('/api/search/{*path}', (req, res) => {
   res.json({ query: req.url.replace('/api/search/', ''), results: [] });
 });
 
 // Docs wildcard — /docs/* (breaks in Express 5)
-app.get('/docs/*', (req, res) => { res.json({ topic: req.url }); });
+app.get('/docs/{*path}', (req, res) => { res.json({ topic: req.url }); });
 
 // 404 catch-all
-app.all('*', (req, res) => { res.json(404, { error: 'Not found' }); });
+app.all('{*path}', (req, res) => { res.status(404).json({ error: 'Not found' }); });
 
 if (require.main === module) { app.listen(3000, () => console.log('Server on :3000')); }
 module.exports = app;
